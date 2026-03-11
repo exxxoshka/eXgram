@@ -3,47 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exogram · Telegram Clone</title>
+    <title>Exogram · Полная версия</title>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        /* Стили как в предыдущей версии, но оптимизированные */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
-        :root {
-            --bg-dark: #0e1621;
-            --bg-sidebar-dark: #17212b;
-            --bg-header-dark: #1e2b36;
-            --bg-bubble-incoming-dark: #17212b;
-            --bg-bubble-outgoing-dark: #2b3947;
-            --text-primary-dark: #ffffff;
-            --text-secondary-dark: #6e7b8a;
-            --accent-blue: #5f9cea;
-            
-            --bg-light: #e7ebf0;
-            --bg-sidebar-light: #f0f2f5;
-            --bg-header-light: #ffffff;
-            --bg-bubble-incoming-light: #ffffff;
-            --bg-bubble-outgoing-light: #d1f0ff;
-            --text-primary-light: #000000;
-            --text-secondary-light: #5e6f8d;
-        }
-
-        body.dark-theme {
-            background: var(--bg-dark);
-            color: var(--text-primary-dark);
-        }
-
+        /* Светлая тема */
         body.light-theme {
-            background: var(--bg-light);
-            color: var(--text-primary-light);
+            background: #e7ebf0;
+        }
+        body.light-theme,
+        body.light-theme * {
+            color: #000000 !important;
+        }
+        body.light-theme .exogram-container {
+            background: #ffffff;
+        }
+        body.light-theme .chats-sidebar {
+            background: #f0f2f5;
+            border-right-color: #d3d9e1;
+        }
+        body.light-theme .sidebar-header,
+        body.light-theme .profile-section,
+        body.light-theme .chat-header,
+        body.light-theme .input-area {
+            background: #ffffff;
+            border-bottom-color: #d3d9e1;
+        }
+        body.light-theme .chat-item {
+            border-bottom-color: #e9ecf0;
+        }
+        body.light-theme .chat-item:hover {
+            background: #e4e7eb;
+        }
+        body.light-theme .chat-item.active {
+            background: #d1d9e6;
+        }
+        body.light-theme .messages-area {
+            background: #e7ebf0;
+        }
+        body.light-theme .incoming .bubble {
+            background: #ffffff;
+            color: #000000 !important;
+        }
+        body.light-theme .outgoing .bubble {
+            background: #d1f0ff;
+            color: #000000 !important;
+        }
+        body.light-theme .message-sender {
+            color: #2a5b8c !important;
+        }
+        body.light-theme .message-footer,
+        body.light-theme .chat-header-status,
+        body.light-theme .profile-status,
+        body.light-theme .chat-last {
+            color: #5e6f8d !important;
+        }
+        body.light-theme .input-wrapper {
+            background: #f0f2f5;
+        }
+        body.light-theme #messageInput {
+            color: #000000 !important;
+        }
+        body.light-theme #messageInput::placeholder {
+            color: #5e6f8d;
+        }
+        body.light-theme .auth-card,
+        body.light-theme .avatar-card,
+        body.light-theme .profile-menu-card {
+            background: #ffffff;
+            color: #000000 !important;
+        }
+        body.light-theme .auth-input,
+        body.light-theme .profile-input {
+            background: #f0f2f5;
+            border-color: #d3d9e1;
+            color: #000000 !important;
+        }
+        body.light-theme .auth-input::placeholder,
+        body.light-theme .profile-input::placeholder {
+            color: #5e6f8d;
+        }
+        body.light-theme .auth-tab {
+            color: #000000 !important;
+        }
+        body.light-theme .auth-tab.active {
+            background: rgba(95, 156, 234, 0.3);
+        }
+        body.light-theme .header-icons span {
+            color: #000000 !important;
+        }
+        body.light-theme .chat-header-title {
+            color: #000000 !important;
+        }
+        body.light-theme .sidebar-header h3 {
+            color: transparent !important;
+        }
+        body.light-theme .profile-name {
+            color: #000000 !important;
+        }
+        body.light-theme .chat-name {
+            color: #000000 !important;
+        }
+        body.light-theme .attach-btn {
+            color: #5e6f8d !important;
+        }
+        body.light-theme .send-btn {
+            color: white !important;
+        }
+
+        /* Темная тема */
+        body.dark-theme {
+            background: #0e1621;
+        }
+        body.dark-theme,
+        body.dark-theme * {
+            color: #ffffff !important;
+        }
+        body.dark-theme .exogram-container {
+            background: #17212b;
+        }
+        body.dark-theme .chats-sidebar {
+            background: #17212b;
+            border-right-color: #0f1a24;
+        }
+        body.dark-theme .sidebar-header,
+        body.dark-theme .profile-section,
+        body.dark-theme .chat-header,
+        body.dark-theme .input-area {
+            background: #1e2b36;
+            border-bottom-color: #0f1a24;
+        }
+        body.dark-theme .chat-item {
+            border-bottom-color: #1e2b36;
+        }
+        body.dark-theme .chat-item:hover {
+            background: #1e2b36;
+        }
+        body.dark-theme .chat-item.active {
+            background: #2b3947;
+        }
+        body.dark-theme .messages-area {
+            background: #0e1621;
+        }
+        body.dark-theme .incoming .bubble {
+            background: #17212b;
+            color: #ffffff !important;
+        }
+        body.dark-theme .outgoing .bubble {
+            background: #2b3947;
+            color: #ffffff !important;
+        }
+        body.dark-theme .message-sender {
+            color: #5f9cea !important;
+        }
+        body.dark-theme .message-footer,
+        body.dark-theme .chat-header-status,
+        body.dark-theme .profile-status,
+        body.dark-theme .chat-last {
+            color: #6e7b8a !important;
+        }
+        body.dark-theme .input-wrapper {
+            background: #1e2b36;
+        }
+        body.dark-theme #messageInput {
+            color: #ffffff !important;
+        }
+        body.dark-theme #messageInput::placeholder {
+            color: #6e7b8a;
+        }
+        body.dark-theme .auth-card,
+        body.dark-theme .avatar-card,
+        body.dark-theme .profile-menu-card {
+            background: #17212b;
+            color: #ffffff !important;
+        }
+        body.dark-theme .auth-input,
+        body.dark-theme .profile-input {
+            background: #1e2b36;
+            border-color: #2b3947;
+            color: #ffffff !important;
+        }
+        body.dark-theme .auth-input::placeholder,
+        body.dark-theme .profile-input::placeholder {
+            color: #6e7b8a;
+        }
+        body.dark-theme .auth-tab {
+            color: #ffffff !important;
+        }
+        body.dark-theme .auth-tab.active {
+            background: rgba(95, 156, 234, 0.3);
+        }
+        body.dark-theme .header-icons span {
+            color: #ffffff !important;
+        }
+        body.dark-theme .chat-header-title {
+            color: #ffffff !important;
+        }
+        body.dark-theme .sidebar-header h3 {
+            color: transparent !important;
+        }
+        body.dark-theme .profile-name {
+            color: #ffffff !important;
+        }
+        body.dark-theme .chat-name {
+            color: #ffffff !important;
+        }
+        body.dark-theme .attach-btn {
+            color: #6e7b8a !important;
+        }
+        body.dark-theme .send-btn {
+            color: white !important;
         }
 
         .exogram-container {
@@ -53,62 +232,7 @@
             overflow: hidden;
         }
 
-        /* Темы */
-        body.dark-theme .exogram-container { background: var(--bg-sidebar-dark); }
-        body.light-theme .exogram-container { background: var(--bg-sidebar-light); }
-
-        body.dark-theme .chats-sidebar { background: var(--bg-sidebar-dark); border-right-color: #0f1a24; }
-        body.light-theme .chats-sidebar { background: var(--bg-sidebar-light); border-right-color: #d3d9e1; }
-
-        body.dark-theme .sidebar-header,
-        body.dark-theme .profile-section,
-        body.dark-theme .chat-header,
-        body.dark-theme .input-area {
-            background: var(--bg-header-dark);
-            border-bottom-color: #0f1a24;
-        }
-
-        body.light-theme .sidebar-header,
-        body.light-theme .profile-section,
-        body.light-theme .chat-header,
-        body.light-theme .input-area {
-            background: var(--bg-header-light);
-            border-bottom-color: #d3d9e1;
-        }
-
-        body.dark-theme .messages-area { background: var(--bg-dark); }
-        body.light-theme .messages-area { background: var(--bg-light); }
-
-        body.dark-theme .incoming .bubble { background: var(--bg-bubble-incoming-dark); color: var(--text-primary-dark); }
-        body.light-theme .incoming .bubble { background: var(--bg-bubble-incoming-light); color: var(--text-primary-light); }
-
-        body.dark-theme .outgoing .bubble { background: var(--bg-bubble-outgoing-dark); color: var(--text-primary-dark); }
-        body.light-theme .outgoing .bubble { background: var(--bg-bubble-outgoing-light); color: var(--text-primary-light); }
-
-        body.dark-theme .message-sender { color: var(--accent-blue) !important; }
-        body.light-theme .message-sender { color: #2a5b8c !important; }
-
-        body.dark-theme .message-footer,
-        body.dark-theme .chat-header-status,
-        body.dark-theme .profile-status,
-        body.dark-theme .chat-last {
-            color: var(--text-secondary-dark) !important;
-        }
-
-        body.light-theme .message-footer,
-        body.light-theme .chat-header-status,
-        body.light-theme .profile-status,
-        body.light-theme .chat-last {
-            color: var(--text-secondary-light) !important;
-        }
-
-        body.dark-theme .input-wrapper { background: var(--bg-header-dark); }
-        body.light-theme .input-wrapper { background: var(--bg-sidebar-light); }
-
-        body.dark-theme #messageInput { color: var(--text-primary-dark); }
-        body.light-theme #messageInput { color: var(--text-primary-light); }
-
-        /* Основные стили */
+        /* Сайдбар */
         .chats-sidebar {
             width: 340px;
             display: flex;
@@ -129,12 +253,17 @@
             background: linear-gradient(135deg, #5f9cea, #9f7aea);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header-icons {
             display: flex;
             gap: 18px;
             font-size: 22px;
+            cursor: pointer;
+        }
+
+        .header-icons span {
             cursor: pointer;
         }
 
@@ -146,10 +275,7 @@
             cursor: pointer;
             transition: background 0.2s;
             border-bottom: 1px solid;
-        }
-
-        .profile-section:hover {
-            background: rgba(95, 156, 234, 0.1);
+            position: relative;
         }
 
         .profile-avatar {
@@ -174,6 +300,10 @@
             object-fit: cover;
         }
 
+        .profile-avatar span {
+            color: white !important;
+        }
+
         .profile-info {
             flex: 1;
         }
@@ -185,6 +315,52 @@
 
         .profile-status {
             font-size: 13px;
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: 70px;
+            right: 10px;
+            width: 280px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu.show {
+            display: block;
+        }
+
+        .profile-menu-card {
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .profile-menu-item {
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s;
+            margin-bottom: 5px;
+        }
+
+        .profile-menu-item:hover {
+            background: rgba(95, 156, 234, 0.2);
+        }
+
+        .profile-menu-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .profile-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid;
+            margin-bottom: 10px;
+            outline: none;
         }
 
         .chat-list {
@@ -203,8 +379,54 @@
             position: relative;
         }
 
-        .chat-item:hover {
-            background: rgba(95, 156, 234, 0.1);
+        .chat-item:hover .chat-item-menu-btn {
+            opacity: 1;
+        }
+
+        .chat-item-menu-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .chat-item-menu-btn span {
+            color: white !important;
+        }
+
+        .chat-item-menu {
+            position: absolute;
+            right: 10px;
+            top: 40px;
+            width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 100;
+        }
+
+        .chat-item-menu.show {
+            display: block;
+        }
+
+        .chat-item-menu .menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-item-menu .menu-item:hover {
+            background: rgba(95, 156, 234, 0.2);
         }
 
         .chat-avatar {
@@ -218,13 +440,19 @@
             font-size: 20px;
             color: white;
             overflow: hidden;
+            position: relative;
             flex-shrink: 0;
+            cursor: pointer;
         }
 
         .chat-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .chat-avatar span {
+            color: white !important;
         }
 
         .chat-info {
@@ -240,6 +468,7 @@
             font-size: 13px;
         }
 
+        /* Основной чат */
         .chat-main {
             flex: 1;
             display: flex;
@@ -263,13 +492,17 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            flex-shrink: 0;
+            cursor: pointer;
         }
 
         .chat-header-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+
+        .chat-header-avatar span {
+            color: white !important;
         }
 
         .chat-header-info {
@@ -286,15 +519,28 @@
             font-size: 13px;
         }
 
+        .chat-header-icons {
+            display: flex;
+            gap: 24px;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .chat-header-icons span {
+            cursor: pointer;
+        }
+
         .messages-area {
             flex: 1;
             overflow-y: auto;
             padding: 24px 40px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="1" fill="%232b3947" opacity="0.3"/></svg>');
         }
 
         .message-row {
             display: flex;
             margin-bottom: 16px;
+            position: relative;
             align-items: flex-end;
             gap: 8px;
         }
@@ -312,9 +558,9 @@
             align-items: center;
             justify-content: center;
             font-size: 16px;
-            color: white;
             overflow: hidden;
             flex-shrink: 0;
+            cursor: pointer;
             margin-bottom: 20px;
         }
 
@@ -324,9 +570,63 @@
             object-fit: cover;
         }
 
+        .message-avatar span {
+            color: white !important;
+        }
+
         .message-content {
             max-width: 60%;
             position: relative;
+        }
+
+        .message-row:hover .message-actions-btn {
+            opacity: 1;
+        }
+
+        .message-actions-btn {
+            position: absolute;
+            right: 0;
+            top: -25px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+
+        .message-actions-btn span {
+            color: white !important;
+        }
+
+        .message-actions-menu {
+            position: absolute;
+            right: 0;
+            top: -80px;
+            width: 150px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 10;
+        }
+
+        .message-actions-menu.show {
+            display: block;
+        }
+
+        .message-actions-menu .menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .message-actions-menu .menu-item:hover {
+            background: rgba(95, 156, 234, 0.2);
         }
 
         .bubble {
@@ -355,6 +655,14 @@
             line-height: 1.4;
         }
 
+        .message-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
         .message-footer {
             display: flex;
             align-items: center;
@@ -376,16 +684,59 @@
             font-size: 26px;
             transform: rotate(45deg);
             cursor: pointer;
+            position: relative;
+        }
+
+        .attach-menu {
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            border-radius: 16px;
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            z-index: 100;
+            border: 1px solid;
+        }
+
+        body.light-theme .attach-menu {
+            background: #ffffff;
+            border-color: #d3d9e1;
+        }
+
+        body.dark-theme .attach-menu {
+            background: #17212b;
+            border-color: #2b3947;
+        }
+
+        .attach-menu.show {
+            display: flex;
+        }
+
+        .attach-option {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .attach-option:hover {
+            background: rgba(95, 156, 234, 0.2);
         }
 
         .input-wrapper {
             flex: 1;
             border-radius: 30px;
             padding: 10px 18px;
+            display: flex;
+            align-items: center;
         }
 
         #messageInput {
-            width: 100%;
+            flex: 1;
             background: transparent;
             border: none;
             outline: none;
@@ -396,9 +747,8 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #5f9cea, #9f7aea);
+            background: #5f9cea;
             border: none;
-            color: white;
             font-size: 20px;
             cursor: pointer;
             display: flex;
@@ -406,7 +756,12 @@
             justify-content: center;
         }
 
-        .auth-modal {
+        .send-btn span {
+            color: white !important;
+        }
+
+        /* Модалки */
+        .auth-modal, .avatar-modal, .photo-viewer {
             position: fixed;
             top: 0;
             left: 0;
@@ -419,29 +774,27 @@
             z-index: 2000;
         }
 
-        .auth-card {
-            background: var(--bg-sidebar-dark);
+        .auth-card, .avatar-card {
             border-radius: 24px;
             padding: 32px;
             width: 400px;
-            color: white;
-        }
-
-        .auth-card h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 32px;
-            background: linear-gradient(135deg, #5f9cea, #9f7aea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
         .auth-tabs {
             display: flex;
             gap: 16px;
             margin-bottom: 24px;
-            border-bottom: 1px solid #2b3947;
+            border-bottom: 1px solid;
             padding-bottom: 16px;
+        }
+
+        body.light-theme .auth-tabs {
+            border-bottom-color: #d3d9e1;
+        }
+
+        body.dark-theme .auth-tabs {
+            border-bottom-color: #2b3947;
         }
 
         .auth-tab {
@@ -461,11 +814,8 @@
         .auth-input {
             width: 100%;
             padding: 16px;
-            background: #1e2b36;
-            border: 1px solid #2b3947;
             border-radius: 16px;
-            color: white;
-            font-size: 16px;
+            border: 1px solid;
             margin-bottom: 16px;
             outline: none;
         }
@@ -476,26 +826,83 @@
             background: linear-gradient(135deg, #5f9cea, #9f7aea);
             border: none;
             border-radius: 16px;
-            color: white;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
         }
 
-        .error-message {
-            color: #ff6b6b;
-            text-align: center;
-            margin-top: 10px;
+        .auth-btn span {
+            color: white !important;
         }
 
-        @media (max-width: 768px) {
-            .chats-sidebar {
-                width: 100px;
-            }
-            .chat-info {
-                display: none;
-            }
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 20px auto;
+            overflow: hidden;
+            border: 3px solid #5f9cea;
+            cursor: pointer;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-input {
+            display: none;
+        }
+
+        .avatar-label {
+            display: block;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            margin: 16px 0;
+            border: 1px dashed #5f9cea;
+        }
+
+        .photo-viewer img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .photo-viewer .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-viewer .close-btn span {
+            color: white !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2b3947;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -503,7 +910,7 @@
     <!-- Модалка авторизации -->
     <div id="authModal" class="auth-modal">
         <div class="auth-card">
-            <h2>✨ Exogram</h2>
+            <h2 style="text-align: center; margin-bottom: 20px;">✨ Exogram</h2>
             
             <div class="auth-tabs">
                 <div class="auth-tab active" id="loginTab" onclick="switchTab('login')">Вход</div>
@@ -513,18 +920,71 @@
             <div id="loginForm">
                 <input type="email" id="loginEmail" class="auth-input" placeholder="Email" value="test@test.com">
                 <input type="password" id="loginPassword" class="auth-input" placeholder="Пароль" value="123456">
-                <button class="auth-btn" onclick="handleLogin()">Войти</button>
+                <button class="auth-btn" onclick="handleLogin()"><span>Войти</span></button>
             </div>
 
             <div id="registerForm" style="display: none;">
                 <input type="text" id="regName" class="auth-input" placeholder="Имя">
                 <input type="email" id="regEmail" class="auth-input" placeholder="Email">
                 <input type="password" id="regPassword" class="auth-input" placeholder="Пароль">
-                <button class="auth-btn" onclick="handleRegister()">Создать</button>
+                <button class="auth-btn" onclick="handleRegister()"><span>Создать</span></button>
             </div>
 
-            <div id="authError" class="error-message"></div>
+            <div id="authError" style="color: #ff6b6b; text-align: center; margin-top: 10px;"></div>
         </div>
+    </div>
+
+    <!-- Меню профиля -->
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-menu-card">
+            <h3 style="margin-bottom: 20px;">👤 Мой профиль</h3>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="profile-avatar" style="width: 80px; height: 80px; margin: 0 auto;" onclick="openAvatarModal()">
+                    <img src="" id="menuAvatarImg" style="display: none;">
+                    <span id="menuAvatarText">U</span>
+                </div>
+            </div>
+            
+            <div class="profile-menu-item" onclick="editProfileField('name')">
+                <i>👤</i> <span id="profileNameDisplay"></span>
+            </div>
+            <div class="profile-menu-item" onclick="editProfileField('email')">
+                <i>📧</i> <span id="profileEmailDisplay"></span>
+            </div>
+            <div class="profile-menu-item" onclick="editProfileField('phone')">
+                <i>📱</i> <span id="profilePhoneDisplay">Не указан</span>
+            </div>
+            <div class="profile-menu-item" onclick="editProfileField('bio')">
+                <i>📝</i> <span id="profileBioDisplay">Не указано</span>
+            </div>
+            <div class="profile-menu-item" onclick="logout()">
+                <i>🚪</i> Выйти
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка фото -->
+    <div id="avatarModal" class="avatar-modal" style="display: none;">
+        <div class="avatar-card">
+            <h3 style="text-align: center; margin-bottom: 20px;">📸 Фото профиля</h3>
+            <div class="avatar-preview" onclick="document.getElementById('avatarInput').click()">
+                <img src="" id="previewImage" style="display: none;">
+                <div id="previewPlaceholder" style="width: 100%; height: 100%; background: #2b3947; display: flex; align-items: center; justify-content: center; font-size: 40px;">👤</div>
+            </div>
+            <input type="file" id="avatarInput" class="avatar-input" accept="image/*">
+            <label for="avatarInput" class="avatar-label">Выбрать фото</label>
+            <button class="auth-btn" onclick="uploadAvatar()" id="uploadBtn"><span>Сохранить</span></button>
+            <button class="auth-btn" onclick="closeAvatarModal()" style="background: #2b3947; margin-top: 10px;"><span>Отмена</span></button>
+            <div id="uploadError" style="color: #ff6b6b; text-align: center; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Просмотр фото -->
+    <div id="photoViewer" class="photo-viewer" style="display: none;" onclick="closePhotoViewer()">
+        <span class="close-btn" onclick="closePhotoViewer(event)"><span>✕</span></span>
+        <img id="viewerImage" src="" alt="">
+        <div id="viewerName" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 30px;"></div>
     </div>
 
     <!-- Основной чат -->
@@ -535,12 +995,14 @@
                 <h3>Exogram</h3>
                 <div class="header-icons">
                     <span id="themeToggle" onclick="toggleTheme()">🌙</span>
+                    <span onclick="toggleProfileMenu()">☰</span>
                 </div>
             </div>
             
             <!-- Профиль -->
-            <div class="profile-section" id="profileSection">
+            <div class="profile-section" onclick="toggleProfileMenu()">
                 <div class="profile-avatar" id="profileAvatar">
+                    <img src="" id="profileAvatarImg" style="display: none;">
                     <span id="profileAvatarText">U</span>
                 </div>
                 <div class="profile-info">
@@ -551,10 +1013,14 @@
 
             <div class="chat-list" id="chatList">
                 <div class="chat-item">
-                    <div class="chat-avatar">👥</div>
+                    <div class="chat-avatar"><span>👥</span></div>
                     <div class="chat-info">
                         <div class="chat-name">Общий чат</div>
                         <div class="chat-last">Все участники</div>
+                    </div>
+                    <div class="chat-item-menu-btn" onclick="event.stopPropagation(); toggleChatMenu(this)"><span>⋮</span></div>
+                    <div class="chat-item-menu">
+                        <div class="menu-item" onclick="clearAllMessages()">🗑️ Очистить чат</div>
                     </div>
                 </div>
             </div>
@@ -563,31 +1029,35 @@
         <!-- Чат -->
         <div class="chat-main">
             <div class="chat-header">
-                <div class="chat-header-avatar">👥</div>
+                <div class="chat-header-avatar" onclick="showChatInfo()"><span>👥</span></div>
                 <div class="chat-header-info">
                     <div class="chat-header-title">Общий чат</div>
-                    <div class="chat-header-status">онлайн</div>
+                    <div class="chat-header-status">2 участника онлайн</div>
+                </div>
+                <div class="chat-header-icons">
+                    <span>🔍</span>
+                    <span>📞</span>
                 </div>
             </div>
 
-            <div class="messages-area" id="messagesArea">
-                <div style="text-align: center; color: var(--text-secondary-dark); margin-top: 20px;">
-                    Добро пожаловать в Exogram! 👋
-                </div>
-            </div>
+            <div class="messages-area" id="messagesArea"></div>
 
             <div class="input-area">
-                <div class="attach-btn" onclick="alert('Функция в разработке')">📎</div>
+                <div class="attach-btn" onclick="toggleAttachMenu()">📎</div>
+                <div class="attach-menu" id="attachMenu">
+                    <div class="attach-option" onclick="sendPhoto()">📷 Отправить фото</div>
+                    <div class="attach-option" onclick="clearAllMessages()">🗑️ Очистить чат</div>
+                </div>
                 <div class="input-wrapper">
                     <input type="text" id="messageInput" placeholder="Сообщение" disabled>
                 </div>
-                <button class="send-btn" id="sendButton" disabled onclick="sendMessage()">➤</button>
+                <button class="send-btn" id="sendButton" disabled onclick="sendMessage()"><span>➤</span></button>
             </div>
         </div>
     </div>
 
     <script>
-        // Firebase конфиг - ВАШИ ДАННЫЕ
+        // Firebase конфиг
         const firebaseConfig = {
             apiKey: "AIzaSyC52uzvut9hJ4Z_hGA7K8HbM9zdcsRfSLw",
             authDomain: "chat-6ba8e.firebaseapp.com",
@@ -598,19 +1068,13 @@
             measurementId: "G-THM716CP12"
         };
 
-        // Инициализация Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log('Firebase initialized');
-        } catch (e) {
-            console.error('Firebase init error:', e);
-        }
-
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
         let currentUser = null;
         let unsubscribeMessages = null;
+        let usersCache = new Map();
         let currentTheme = 'dark';
 
         // Тема
@@ -621,148 +1085,37 @@
             if (currentTheme === 'dark') {
                 body.classList.remove('dark-theme');
                 body.classList.add('light-theme');
-                themeToggle.textContent = '☀️';
+                themeToggle.textContent = '☀️'; // Солнце для светлой темы
                 currentTheme = 'light';
             } else {
                 body.classList.remove('light-theme');
                 body.classList.add('dark-theme');
-                themeToggle.textContent = '🌙';
+                themeToggle.textContent = '🌙'; // Луна для темной темы
                 currentTheme = 'dark';
             }
-            localStorage.setItem('exogram_theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
         };
 
         // Загрузка темы
-        const savedTheme = localStorage.getItem('exogram_theme');
+        const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             currentTheme = savedTheme;
             document.body.classList.add(savedTheme + '-theme');
+            // Правильные иконки при загрузке
             document.getElementById('themeToggle').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
         }
 
-        // Функции авторизации
-        window.switchTab = function(tab) {
-            if (tab === 'login') {
-                document.getElementById('loginTab').classList.add('active');
-                document.getElementById('registerTab').classList.remove('active');
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('registerForm').style.display = 'none';
-            } else {
-                document.getElementById('registerTab').classList.add('active');
-                document.getElementById('loginTab').classList.remove('active');
-                document.getElementById('registerForm').style.display = 'block';
-                document.getElementById('loginForm').style.display = 'none';
-            }
+        // Меню профиля
+        window.toggleProfileMenu = function() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('show');
+            updateProfileMenu();
         };
 
-        window.handleRegister = async function() {
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-
-            if (!name || !email || !password) {
-                document.getElementById('authError').textContent = 'Заполните все поля';
-                return;
-            }
-
-            try {
-                const result = await auth.createUserWithEmailAndPassword(email, password);
-                await result.user.updateProfile({ displayName: name });
-                
-                await db.collection('users').doc(result.user.uid).set({
-                    name: name,
-                    email: email,
-                    avatar: '',
-                    createdAt: new Date()
-                });
-
-                currentUser = result.user;
-                hideAuthModal();
-                initChat();
-            } catch (error) {
-                document.getElementById('authError').textContent = error.message;
-            }
-        };
-
-        window.handleLogin = async function() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const result = await auth.signInWithEmailAndPassword(email, password);
-                currentUser = result.user;
-                hideAuthModal();
-                initChat();
-            } catch (error) {
-                document.getElementById('authError').textContent = 'Неверный email или пароль';
-            }
-        };
-
-        // Инициализация чата
-        function initChat() {
-            document.getElementById('messageInput').disabled = false;
-            document.getElementById('sendButton').disabled = false;
-            document.getElementById('profileName').textContent = currentUser.displayName || 'User';
-        }
-
-        window.sendMessage = function() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
+        async function updateProfileMenu() {
+            if (!currentUser) return;
             
-            if (!text || !currentUser) return;
-
-            // Временно добавляем сообщение локально
-            const messagesArea = document.getElementById('messagesArea');
-            const messageRow = document.createElement('div');
-            messageRow.className = 'message-row outgoing';
+            document.getElementById('profileNameDisplay').textContent = currentUser.displayName || 'Не указано';
+            document.getElementById('profileEmailDisplay').textContent = currentUser.email || 'Не указано';
             
-            messageRow.innerHTML = `
-                <div class="message-content">
-                    <div class="bubble">
-                        <div class="message-text">${text}</div>
-                        <div class="message-footer">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ✓✓</div>
-                    </div>
-                </div>
-            `;
-            
-            messagesArea.appendChild(messageRow);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            input.value = '';
-        };
-
-        function hideAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-            document.getElementById('chatContainer').style.display = 'flex';
-        }
-
-        // Обработчики
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Проверка авторизации
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                hideAuthModal();
-                initChat();
-            }
-        });
-
-        // Для демо - показываем чат сразу (если не хотите ждать авторизацию)
-        setTimeout(() => {
-            if (!currentUser) {
-                // Демо-режим
-                document.getElementById('authModal').style.display = 'none';
-                document.getElementById('chatContainer').style.display = 'flex';
-                document.getElementById('profileName').textContent = 'Гость';
-                document.getElementById('messageInput').disabled = false;
-                document.getElementById('sendButton').disabled = false;
-            }
-        }, 1000);
-    </script>
-</body>
-</html>
+            const userDoc = await db.collection('users').doc(current
