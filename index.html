@@ -1085,12 +1085,12 @@
             if (currentTheme === 'dark') {
                 body.classList.remove('dark-theme');
                 body.classList.add('light-theme');
-                themeToggle.textContent = '☀️'; // Солнце для светлой темы
+                themeToggle.textContent = '☀️';
                 currentTheme = 'light';
             } else {
                 body.classList.remove('light-theme');
                 body.classList.add('dark-theme');
-                themeToggle.textContent = '🌙'; // Луна для темной темы
+                themeToggle.textContent = '🌙';
                 currentTheme = 'dark';
             }
             localStorage.setItem('theme', currentTheme);
@@ -1101,7 +1101,6 @@
         if (savedTheme) {
             currentTheme = savedTheme;
             document.body.classList.add(savedTheme + '-theme');
-            // Правильные иконки при загрузке
             document.getElementById('themeToggle').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
         }
 
@@ -1118,4 +1117,399 @@
             document.getElementById('profileNameDisplay').textContent = currentUser.displayName || 'Не указано';
             document.getElementById('profileEmailDisplay').textContent = currentUser.email || 'Не указано';
             
-            const userDoc = await db.collection('users').doc(current
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                document.getElementById('profilePhoneDisplay').textContent = data.phone || 'Не указан';
+                document.getElementById('profileBioDisplay').textContent = data.bio || 'Не указано';
+                
+                if (data.avatarBase64) {
+                    document.getElementById('menuAvatarImg').src = data.avatarBase64;
+                    document.getElementById('menuAvatarImg').style.display = 'block';
+                    document.getElementById('menuAvatarText').style.display = 'none';
+                }
+            }
+        }
+
+        window.editProfileField = function(field) {
+            const currentValue = field === 'name' ? currentUser.displayName : 
+                               field === 'email' ? currentUser.email : '';
+            
+            const newValue = prompt(`Введите новое ${field === 'name' ? 'имя' : field === 'email' ? 'email' : field === 'phone' ? 'телефон' : 'bio'}`, currentValue);
+            
+            if (newValue && newValue !== currentValue) {
+                if (field === 'name') {
+                    currentUser.updateProfile({ displayName: newValue });
+                    db.collection('users').doc(currentUser.uid).update({ name: newValue });
+                } else {
+                    db.collection('users').doc(currentUser.uid).update({ [field]: newValue });
+                }
+                updateProfileMenu();
+                updateProfileUI();
+            }
+        };
+
+        // Меню чата
+        window.toggleChatMenu = function(btn) {
+            const menu = btn.nextElementSibling;
+            menu.classList.toggle('show');
+            setTimeout(() => menu.classList.remove('show'), 3000);
+        };
+
+        // Меню сообщения
+        window.toggleMessageMenu = function(btn, messageId) {
+            const menu = btn.nextElementSibling;
+            menu.classList.toggle('show');
+            menu.setAttribute('data-message-id', messageId);
+            setTimeout(() => menu.classList.remove('show'), 3000);
+        };
+
+        window.deleteMessage = async function(messageId) {
+            if (!confirm('Удалить сообщение?')) return;
+            await db.collection('messages').doc(messageId).delete();
+        };
+
+        window.editMessage = async function(messageId) {
+            const newText = prompt('Изменить сообщение:');
+            if (newText) {
+                await db.collection('messages').doc(messageId).update({ text: newText });
+            }
+        };
+
+        // Отправка фото
+        window.sendPhoto = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = async function(ev) {
+                    const photoUrl = ev.target.result;
+                    
+                    await db.collection('messages').add({
+                        type: 'image',
+                        imageUrl: photoUrl,
+                        userId: currentUser.uid,
+                        userName: currentUser.displayName || 'Пользователь',
+                        time: getCurrentTime(),
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+            toggleAttachMenu();
+        };
+
+        // Очистить все сообщения
+        window.clearAllMessages = async function() {
+            if (!confirm('⚠️ Удалить ВСЕ сообщения?')) return;
+            const snapshot = await db.collection('messages').get();
+            const batch = db.batch();
+            snapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+        };
+
+        // Остальные функции
+        async function ensureUserDocument(user) {
+            const userRef = db.collection('users').doc(user.uid);
+            const userDoc = await userRef.get();
+            
+            if (!userDoc.exists) {
+                await userRef.set({
+                    name: user.displayName || 'Пользователь',
+                    email: user.email,
+                    avatarBase64: '',
+                    phone: '',
+                    bio: '',
+                    createdAt: new Date()
+                });
+            }
+        }
+
+        window.handleRegister = async function() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                const result = await auth.createUserWithEmailAndPassword(email, password);
+                await result.user.updateProfile({ displayName: name });
+                await db.collection('users').doc(result.user.uid).set({
+                    name: name,
+                    email: email,
+                    avatarBase64: '',
+                    phone: '',
+                    bio: '',
+                    createdAt: new Date()
+                });
+                currentUser = result.user;
+                hideAuthModal();
+                initChat();
+            } catch (error) {
+                document.getElementById('authError').textContent = error.message;
+            }
+        };
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const result = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = result.user;
+                await ensureUserDocument(currentUser);
+                hideAuthModal();
+                initChat();
+            } catch (error) {
+                document.getElementById('authError').textContent = 'Неверный email или пароль';
+            }
+        };
+
+        window.logout = async function() {
+            await auth.signOut();
+            currentUser = null;
+            document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('authModal').style.display = 'flex';
+            document.getElementById('profileMenu').classList.remove('show');
+            if (unsubscribeMessages) unsubscribeMessages();
+        };
+
+        window.openAvatarModal = function() {
+            document.getElementById('avatarModal').style.display = 'flex';
+        };
+
+        window.closeAvatarModal = function() {
+            document.getElementById('avatarModal').style.display = 'none';
+        };
+
+        window.uploadAvatar = async function() {
+            const file = document.getElementById('avatarInput').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                await db.collection('users').doc(currentUser.uid).update({ 
+                    avatarBase64: e.target.result 
+                });
+                await updateProfileUI();
+                closeAvatarModal();
+                alert('✅ Фото сохранено!');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.showPhoto = function(url, name) {
+            document.getElementById('viewerImage').src = url;
+            document.getElementById('viewerName').textContent = name;
+            document.getElementById('photoViewer').style.display = 'flex';
+        };
+
+        window.closePhotoViewer = function() {
+            document.getElementById('photoViewer').style.display = 'none';
+        };
+
+        async function updateProfileUI() {
+            if (!currentUser) return;
+            
+            document.getElementById('profileName').textContent = currentUser.displayName || 'User';
+            
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = userDoc.data();
+            
+            if (userData?.avatarBase64) {
+                document.getElementById('profileAvatarImg').src = userData.avatarBase64;
+                document.getElementById('profileAvatarImg').style.display = 'block';
+                document.getElementById('profileAvatarText').style.display = 'none';
+            }
+        }
+
+        async function getUserData(userId) {
+            if (usersCache.has(userId)) return usersCache.get(userId);
+            
+            const doc = await db.collection('users').doc(userId).get();
+            if (doc.exists) {
+                usersCache.set(userId, doc.data());
+                return doc.data();
+            }
+            return null;
+        }
+
+        function subscribeToMessages() {
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            unsubscribeMessages = db.collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot(async (snapshot) => {
+                    const area = document.getElementById('messagesArea');
+                    area.innerHTML = '';
+                    
+                    for (const doc of snapshot.docs) {
+                        const msg = { id: doc.id, ...doc.data() };
+                        await displayMessage(msg);
+                    }
+                    area.scrollTop = area.scrollHeight;
+                });
+        }
+
+        async function displayMessage(msg) {
+            if (!msg.text && !msg.imageUrl) return;
+            
+            const isOutgoing = msg.userId === currentUser?.uid;
+            const userData = await getUserData(msg.userId);
+            
+            const row = document.createElement('div');
+            row.className = `message-row ${isOutgoing ? 'outgoing' : 'incoming'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            if (userData?.avatarBase64) {
+                const img = document.createElement('img');
+                img.src = userData.avatarBase64;
+                img.onclick = () => showPhoto(userData.avatarBase64, userData.name);
+                avatar.appendChild(img);
+            } else {
+                const span = document.createElement('span');
+                span.textContent = (userData?.name || 'U')[0].toUpperCase();
+                avatar.appendChild(span);
+            }
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            if (!isOutgoing) {
+                const sender = document.createElement('div');
+                sender.className = 'message-sender';
+                sender.textContent = userData?.name || 'Пользователь';
+                sender.onclick = () => userData?.avatarBase64 && showPhoto(userData.avatarBase64, userData.name);
+                bubble.appendChild(sender);
+            }
+            
+            if (msg.imageUrl) {
+                const img = document.createElement('img');
+                img.src = msg.imageUrl;
+                img.className = 'message-image';
+                img.onclick = () => showPhoto(msg.imageUrl, 'Фото');
+                bubble.appendChild(img);
+            }
+            
+            if (msg.text) {
+                const text = document.createElement('div');
+                text.className = 'message-text';
+                text.textContent = msg.text;
+                bubble.appendChild(text);
+            }
+            
+            const footer = document.createElement('div');
+            footer.className = 'message-footer';
+            footer.innerHTML = `${msg.time || getCurrentTime()} ${isOutgoing ? '✓✓' : ''}`;
+            bubble.appendChild(footer);
+            
+            content.appendChild(bubble);
+            
+            if (isOutgoing) {
+                const menuBtn = document.createElement('div');
+                menuBtn.className = 'message-actions-btn';
+                menuBtn.innerHTML = '<span>⋮</span>';
+                menuBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleMessageMenu(menuBtn, msg.id);
+                };
+                
+                const menu = document.createElement('div');
+                menu.className = 'message-actions-menu';
+                menu.innerHTML = `
+                    <div class="menu-item" onclick="editMessage('${msg.id}')">✏️ Изменить</div>
+                    <div class="menu-item" onclick="deleteMessage('${msg.id}')">🗑️ Удалить</div>
+                `;
+                
+                content.appendChild(menuBtn);
+                content.appendChild(menu);
+            }
+            
+            row.appendChild(avatar);
+            row.appendChild(content);
+            document.getElementById('messagesArea').appendChild(row);
+        }
+
+        window.sendMessage = async function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text || !currentUser) return;
+
+            await db.collection('messages').add({
+                text: text,
+                userId: currentUser.uid,
+                userName: currentUser.displayName || 'Пользователь',
+                time: getCurrentTime(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            input.value = '';
+        };
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        }
+
+        function switchTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.getElementById('registerTab').classList.remove('active');
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            } else {
+                document.getElementById('registerTab').classList.add('active');
+                document.getElementById('loginTab').classList.remove('active');
+                document.getElementById('registerForm').style.display = 'block';
+                document.getElementById('loginForm').style.display = 'none';
+            }
+        }
+
+        function hideAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'flex';
+        }
+
+        function toggleAttachMenu() {
+            document.getElementById('attachMenu').classList.toggle('show');
+        }
+
+        async function initChat() {
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendButton').disabled = false;
+            
+            await ensureUserDocument(currentUser);
+            await updateProfileUI();
+            subscribeToMessages();
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.profile-section') && !e.target.closest('#profileMenu')) {
+                document.getElementById('profileMenu').classList.remove('show');
+            }
+        });
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await ensureUserDocument(user);
+                hideAuthModal();
+                initChat();
+            }
+        });
+    </script>
+</body>
+</html>
